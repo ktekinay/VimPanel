@@ -23,7 +23,7 @@ Begin Window WndMain
    MinWidth        =   64
    Placement       =   0
    Resizeable      =   True
-   Title           =   "Untitled"
+   Title           =   "VimPanel"
    Visible         =   True
    Width           =   600
 End

@@ -26,7 +26,7 @@ Protected Class Parser
 		    ps.BindType( 0, SQLitePreparedStatement.SQLITE_TEXT )
 		    
 		    dim rs as RecordSet = ps.SQLSelect( CurrentSequence )
-		     if rs is nil or rs.RecordCount = 0 then
+		    if rs is nil or rs.RecordCount = 0 then
 		      Reset
 		      mMessage = kMessageInvalidSequence
 		      
@@ -262,15 +262,15 @@ Protected Class Parser
 			Type="Integer"
 		#tag EndViewProperty
 		#tag ViewProperty
+			Name="IsValid"
+			Group="Behavior"
+			Type="Boolean"
+		#tag EndViewProperty
+		#tag ViewProperty
 			Name="Left"
 			Visible=true
 			Group="Position"
 			InitialValue="0"
-			Type="Integer"
-		#tag EndViewProperty
-		#tag ViewProperty
-			Name="mDB"
-			Group="Behavior"
 			Type="Integer"
 		#tag EndViewProperty
 		#tag ViewProperty

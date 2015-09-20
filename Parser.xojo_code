@@ -26,7 +26,7 @@ Protected Class Parser
 		    dim rs as RecordSet = ps.SQLSelect( CurrentSequence )
 		     if rs is nil or rs.RecordCount = 0 then
 		      Reset
-		      mMessage = "invalid sequence"
+		      mMessage = kMessageInvalidSequence
 		      
 		    elseif rs.RecordCount > 1 or rs.Field( "takes_param" ).BooleanValue then
 		      //
@@ -194,6 +194,15 @@ Protected Class Parser
 		Private CurrentSequence As String
 	#tag EndProperty
 
+	#tag ComputedProperty, Flags = &h0
+		#tag Getter
+			Get
+			  return mMessage <> kMessageInvalidSequence
+			End Get
+		#tag EndGetter
+		IsValid As Boolean
+	#tag EndComputedProperty
+
 	#tag Property, Flags = &h21
 		Private mDB As Database
 	#tag EndProperty
@@ -213,6 +222,10 @@ Protected Class Parser
 	#tag Property, Flags = &h21
 		Private Stack As String
 	#tag EndProperty
+
+
+	#tag Constant, Name = kMessageInvalidSequence, Type = String, Dynamic = False, Default = \"invalid sequence", Scope = Private
+	#tag EndConstant
 
 
 	#tag ViewBehavior

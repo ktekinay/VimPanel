@@ -68,6 +68,8 @@ End
 		Function KeyDown(Key As String) As Boolean
 		  App.Parser.AddCharacter key
 		  lblMessage.Text = App.Parser.Message
+		  
+		  return App.Parser.IsValid
 		End Function
 	#tag EndEvent
 

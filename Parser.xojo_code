@@ -83,29 +83,52 @@ Protected Class Parser
 
 	#tag Method, Flags = &h0
 		 Shared Function EncodeChar(char As String) As String
+		  dim result as string = char
+		  
 		  select case char.Asc
+		  case 3
+		    result = "ENT"
+		    
+		  case 8
+		    result = "DEL"
+		    
+		  case 9
+		    result = "TAB"
+		    
+		  case 10
+		    result = "LF"
+		    
+		  case 13
+		    result = "RET"
+		    
 		  case is <= 26
-		    return "•CTRL+" + Chr( char.Asc + 64 ) + "•"
+		    result = "CTRL+" + Chr( char.Asc + 64 )
 		    
 		  case 27
-		    return "•ESC•"
+		    result = "ESC"
 		    
 		  case 28
-		    return "•LEFT•"
+		    result = "LEFT"
 		    
 		  case 29
-		    return "•RIGHT•"
+		    result = "RIGHT"
 		    
 		  case 30
-		    return "•UP•"
+		    result = "UP"
 		    
 		  case 31
-		    return "•DOWN•"
+		    result = "DOWN"
 		    
-		  case else
-		    return char
+		  case &h7F
+		    result = "FDEL"
 		    
 		  end select
+		  
+		  if result <> char then
+		    result = "•" + result + "•"
+		  end if
+		  
+		  return result
 		End Function
 	#tag EndMethod
 

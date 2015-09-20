@@ -247,7 +247,7 @@ Protected Class Parser
 	#tag Constant, Name = kMessageInvalidSequence, Type = String, Dynamic = False, Default = \"invalid sequence", Scope = Private
 	#tag EndConstant
 
-	#tag Constant, Name = kShiftPrefix, Type = String, Dynamic = False, Default = \"SHIFT+", Scope = Public
+	#tag Constant, Name = kShiftPrefix, Type = String, Dynamic = False, Default = \"SHIFT+", Scope = Private
 	#tag EndConstant
 
 

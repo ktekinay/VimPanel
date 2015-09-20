@@ -5,6 +5,8 @@ Protected Class Parser
 		  Stack = Stack + EncodeChar( char )
 		  SplitStack
 		  
+		  mMessage = Stack
+		  
 		  if CurrentSequence = "" then
 		    //
 		    // Only the repetitions were added, so wait
@@ -24,7 +26,7 @@ Protected Class Parser
 		    ps.BindType( 0, SQLitePreparedStatement.SQLITE_TEXT )
 		    
 		    dim rs as RecordSet = ps.SQLSelect( CurrentSequence )
-		     if rs is nil or rs.RecordCount = 0 then
+		    if rs is nil or rs.RecordCount = 0 then
 		      Reset
 		      mMessage = kMessageInvalidSequence
 		      
@@ -32,7 +34,6 @@ Protected Class Parser
 		      //
 		      // More then one match or waiting for a param
 		      //
-		      mMessage = ""
 		      redim SequenceRecordIDs( -1 )
 		      while not rs.EOF
 		        SequenceRecordIDs.Append rs.Field( "id" ).IntegerValue
@@ -83,29 +84,45 @@ Protected Class Parser
 
 	#tag Method, Flags = &h0
 		 Shared Function EncodeChar(char As String) As String
-		  select case char.Asc
-		  case is <= 26
-		    return "•CTRL+" + Chr( char.Asc + 64 ) + "•"
-		    
-		  case 27
-		    return "•ESC•"
-		    
-		  case 28
-		    return "•LEFT•"
-		    
-		  case 29
-		    return "•RIGHT•"
-		    
-		  case 30
-		    return "•UP•"
-		    
-		  case 31
-		    return "•DOWN•"
-		    
-		  case else
-		    return char
-		    
-		  end select
+		  dim r as string
+		  for i as integer = 0 to &hFF
+		    if Keyboard.AsyncKeyDown( i ) then
+		      r = Keyboard.KeyName( i )
+		      if r = "Shift" or r = "Control" or r = "Option" then
+		        continue for i
+		      end if
+		      
+		      dim isSame as boolean = r = char
+		      if isSame or ( char.Asc > 31 and r.LenB = 1 ) then
+		        r = char // Will preserve the actual key
+		        
+		        //
+		        // If the shift key is down but that won't make a difference to the actual character, record that the shift key is down
+		        //
+		        if Keyboard.ShiftKey and isSame and ( Keyboard.ControlKey or StrComp( char.Lowercase, char.Uppercase, 0 ) = 0 ) then
+		          r = kShiftPrefix + r
+		        end if
+		        
+		      else
+		        r = r.Uppercase
+		        if Keyboard.ShiftKey then
+		          r = kShiftPrefix + r
+		        end if
+		      end if
+		      
+		      if Keyboard.ControlKey then
+		        r = kControlPrefix + r
+		      end if
+		      exit for i
+		    end if
+		  next
+		  
+		  if r <> char then
+		    r = "•" + r + "•"
+		  end if
+		  
+		  return r
+		  
 		End Function
 	#tag EndMethod
 
@@ -224,7 +241,13 @@ Protected Class Parser
 	#tag EndProperty
 
 
+	#tag Constant, Name = kControlPrefix, Type = String, Dynamic = False, Default = \"CTRL+", Scope = Private
+	#tag EndConstant
+
 	#tag Constant, Name = kMessageInvalidSequence, Type = String, Dynamic = False, Default = \"invalid sequence", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = kShiftPrefix, Type = String, Dynamic = False, Default = \"SHIFT+", Scope = Private
 	#tag EndConstant
 
 
@@ -237,15 +260,15 @@ Protected Class Parser
 			Type="Integer"
 		#tag EndViewProperty
 		#tag ViewProperty
+			Name="IsValid"
+			Group="Behavior"
+			Type="Boolean"
+		#tag EndViewProperty
+		#tag ViewProperty
 			Name="Left"
 			Visible=true
 			Group="Position"
 			InitialValue="0"
-			Type="Integer"
-		#tag EndViewProperty
-		#tag ViewProperty
-			Name="mDB"
-			Group="Behavior"
 			Type="Integer"
 		#tag EndViewProperty
 		#tag ViewProperty

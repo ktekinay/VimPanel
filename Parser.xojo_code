@@ -84,52 +84,45 @@ Protected Class Parser
 
 	#tag Method, Flags = &h0
 		 Shared Function EncodeChar(char As String) As String
-		  dim result as string = char
+		  dim r as string
+		  for i as integer = 0 to &hFF
+		    if Keyboard.AsyncKeyDown( i ) then
+		      r = Keyboard.KeyName( i )
+		      if r = "Shift" or r = "Control" or r = "Option" then
+		        continue for i
+		      end if
+		      
+		      dim isSame as boolean = r = char
+		      if isSame or ( char.Asc > 31 and r.LenB = 1 ) then
+		        r = char // Will preserve the actual key
+		        
+		        //
+		        // If the shift key is down but that won't make a difference to the actual character, record that the shift key is down
+		        //
+		        if Keyboard.ShiftKey and isSame and ( Keyboard.ControlKey or StrComp( char.Lowercase, char.Uppercase, 0 ) = 0 ) then
+		          r = kShiftPrefix + r
+		        end if
+		        
+		      else
+		        r = r.Uppercase
+		        if Keyboard.ShiftKey then
+		          r = kShiftPrefix + r
+		        end if
+		      end if
+		      
+		      if Keyboard.ControlKey then
+		        r = kControlPrefix + r
+		      end if
+		      exit for i
+		    end if
+		  next
 		  
-		  select case char.Asc
-		  case 3
-		    result = "ENT"
-		    
-		  case 8
-		    result = "DEL"
-		    
-		  case 9
-		    result = "TAB"
-		    
-		  case 10
-		    result = "LF"
-		    
-		  case 13
-		    result = "RET"
-		    
-		  case is <= 26
-		    result = "CTRL+" + Chr( char.Asc + 64 )
-		    
-		  case 27
-		    result = "ESC"
-		    
-		  case 28
-		    result = "LEFT"
-		    
-		  case 29
-		    result = "RIGHT"
-		    
-		  case 30
-		    result = "UP"
-		    
-		  case 31
-		    result = "DOWN"
-		    
-		  case &h7F
-		    result = "FDEL"
-		    
-		  end select
-		  
-		  if result <> char then
-		    result = "•" + result + "•"
+		  if r <> char then
+		    r = "•" + r + "•"
 		  end if
 		  
-		  return result
+		  return r
+		  
 		End Function
 	#tag EndMethod
 
@@ -248,7 +241,13 @@ Protected Class Parser
 	#tag EndProperty
 
 
+	#tag Constant, Name = kControlPrefix, Type = String, Dynamic = False, Default = \"CTRL+", Scope = Private
+	#tag EndConstant
+
 	#tag Constant, Name = kMessageInvalidSequence, Type = String, Dynamic = False, Default = \"invalid sequence", Scope = Private
+	#tag EndConstant
+
+	#tag Constant, Name = kShiftPrefix, Type = String, Dynamic = False, Default = \"SHIFT+", Scope = Public
 	#tag EndConstant
 
 

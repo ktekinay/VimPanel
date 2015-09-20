@@ -34,7 +34,6 @@ Protected Class Parser
 		      //
 		      // More then one match or waiting for a param
 		      //
-		      mMessage = ""
 		      redim SequenceRecordIDs( -1 )
 		      while not rs.EOF
 		        SequenceRecordIDs.Append rs.Field( "id" ).IntegerValue

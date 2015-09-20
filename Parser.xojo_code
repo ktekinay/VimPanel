@@ -5,6 +5,8 @@ Protected Class Parser
 		  Stack = Stack + EncodeChar( char )
 		  SplitStack
 		  
+		  mMessage = Stack
+		  
 		  if CurrentSequence = "" then
 		    //
 		    // Only the repetitions were added, so wait

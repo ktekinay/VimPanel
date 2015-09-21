@@ -2,6 +2,7 @@
 Protected Class Parser
 	#tag Method, Flags = &h0
 		Sub AddCharacter(char As String)
+		  dim useSequence as string = CurrentSequence
 		  Stack = Stack + EncodeChar( char )
 		  SplitStack
 		  
@@ -15,9 +16,12 @@ Protected Class Parser
 		  end if
 		  
 		  dim script as string
+		  dim scriptFetched as boolean
 		  if SequenceRecordIDs.Ubound = 0 then // Found one after last search
 		    
 		    script = FetchScript( SequenceRecordIDs( 0 ) )
+		    scriptFetched = true
+		    useSequence = useSequence + char
 		    
 		  else
 		    
@@ -44,20 +48,22 @@ Protected Class Parser
 		      //
 		      // We found one match and it doesn't need a param, so let's go
 		      //
-		      script = FetchScript( rs.Field( "script_id" ).IntegerValue )
-		      
+		      script = FetchScript( rs.Field( "id" ).IntegerValue )
+		      scriptFetched = true
+		      useSequence = CurrentSequence
 		    end if
 		    
 		  end if
 		  
 		  if script <> "" then
 		    dim msg as string
-		    for i as integer = 1 to Repetitions
-		      msg = ExecuteScript( script, CurrentSequence )
-		    next
+		    msg = ExecuteScript( script, useSequence, Repetitions )
 		    
 		    Reset
 		    mMessage = msg
+		  elseif scriptFetched then
+		    Reset
+		    mMessage = "unexpected error"
 		  end if
 		End Sub
 	#tag EndMethod
@@ -127,9 +133,13 @@ Protected Class Parser
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
-		Private Function ExecuteScript(script As String, params As String) As String
+		Private Function ExecuteScript(script As String, seq As String, reps As Integer) As String
+		  if reps < 1 then
+		    reps = 1
+		  end if
+		  
 		  dim sh as new Shell
-		  dim cmd as string = "/usr/bin/osascript -e " + ShellQuote( script ) + " " + ShellQuote( params )
+		  dim cmd as string = "/usr/bin/osascript -e " + ShellQuote( script ) + " " + ShellQuote( seq ) + " " + str( reps )
 		  sh.Execute cmd
 		  return sh.Result.Trim.DefineEncoding( Encodings.UTF8 )
 		  
@@ -138,7 +148,7 @@ Protected Class Parser
 
 	#tag Method, Flags = &h21
 		Private Function FetchScript(id As Integer) As String
-		  dim sql as string = "SELECT id, script FROM scripts WHERE id = ?"
+		  dim sql as string = "SELECT script FROM sequences LEFT JOIN scripts ON sequences.script_id = scripts.id WHERE sequences.id = ?"
 		  dim ps as PreparedSQLStatement = DB.Prepare( sql )
 		  ps.BindType( 0, SQLitePreparedStatement.SQLITE_TEXT )
 		  

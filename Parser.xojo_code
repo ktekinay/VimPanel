@@ -51,9 +51,7 @@ Protected Class Parser
 		  
 		  if script <> "" then
 		    dim msg as string
-		    for i as integer = 1 to Repetitions
-		      msg = ExecuteScript( script, CurrentSequence )
-		    next
+		    msg = ExecuteScript( script, useSequence, Repetitions )
 		    
 		    Reset
 		    mMessage = msg
@@ -126,9 +124,13 @@ Protected Class Parser
 	#tag EndMethod
 
 	#tag Method, Flags = &h21
-		Private Function ExecuteScript(script As String, params As String) As String
+		Private Function ExecuteScript(script As String, seq As String, reps As Integer) As String
+		  if reps < 1 then
+		    reps = 1
+		  end if
+		  
 		  dim sh as new Shell
-		  dim cmd as string = "/usr/bin/osascript -e " + ShellQuote( script ) + " " + ShellQuote( params )
+		  dim cmd as string = "/usr/bin/osascript -e " + ShellQuote( script ) + " " + ShellQuote( seq ) + " " + str( reps )
 		  sh.Execute cmd
 		  return sh.Result.Trim.DefineEncoding( Encodings.UTF8 )
 		  

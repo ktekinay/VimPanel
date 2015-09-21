@@ -44,8 +44,7 @@ Protected Class Parser
 		      //
 		      // We found one match and it doesn't need a param, so let's go
 		      //
-		      script = FetchScript( rs.Field( "script_id" ).IntegerValue )
-		      
+		      script = FetchScript( rs.Field( "id" ).IntegerValue )
 		    end if
 		    
 		  end if
@@ -138,7 +137,7 @@ Protected Class Parser
 
 	#tag Method, Flags = &h21
 		Private Function FetchScript(id As Integer) As String
-		  dim sql as string = "SELECT id, script FROM scripts WHERE id = ?"
+		  dim sql as string = "SELECT script FROM sequences LEFT JOIN scripts ON sequences.script_id = scripts.id WHERE sequences.id = ?"
 		  dim ps as PreparedSQLStatement = DB.Prepare( sql )
 		  ps.BindType( 0, SQLitePreparedStatement.SQLITE_TEXT )
 		  

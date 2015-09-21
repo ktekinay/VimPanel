@@ -15,9 +15,11 @@ Protected Class Parser
 		  end if
 		  
 		  dim script as string
+		  dim scriptFetched as boolean
 		  if SequenceRecordIDs.Ubound = 0 then // Found one after last search
 		    
 		    script = FetchScript( SequenceRecordIDs( 0 ) )
+		    scriptFetched = true
 		    
 		  else
 		    
@@ -45,6 +47,7 @@ Protected Class Parser
 		      // We found one match and it doesn't need a param, so let's go
 		      //
 		      script = FetchScript( rs.Field( "id" ).IntegerValue )
+		      scriptFetched = true
 		    end if
 		    
 		  end if
@@ -55,6 +58,9 @@ Protected Class Parser
 		    
 		    Reset
 		    mMessage = msg
+		  elseif scriptFetched then
+		    Reset
+		    mMessage = "unexpected error"
 		  end if
 		End Sub
 	#tag EndMethod

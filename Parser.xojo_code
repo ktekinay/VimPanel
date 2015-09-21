@@ -2,6 +2,7 @@
 Protected Class Parser
 	#tag Method, Flags = &h0
 		Sub AddCharacter(char As String)
+		  dim useSequence as string = CurrentSequence
 		  Stack = Stack + EncodeChar( char )
 		  SplitStack
 		  
@@ -20,6 +21,7 @@ Protected Class Parser
 		    
 		    script = FetchScript( SequenceRecordIDs( 0 ) )
 		    scriptFetched = true
+		    useSequence = useSequence + char
 		    
 		  else
 		    
@@ -48,6 +50,7 @@ Protected Class Parser
 		      //
 		      script = FetchScript( rs.Field( "id" ).IntegerValue )
 		      scriptFetched = true
+		      useSequence = CurrentSequence
 		    end if
 		    
 		  end if
